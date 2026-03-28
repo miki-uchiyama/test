@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
-export default function UpdatePasswordPage() {
+function UpdatePasswordForm() {
   const supabase = createClient()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -19,7 +19,6 @@ export default function UpdatePasswordPage() {
     const type = searchParams.get('type')
 
     if (tokenHash && type === 'recovery') {
-      // URLのトークンを使ってセッションを確立
       supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' }).then(({ error }) => {
         if (error) {
           setMessage({ type: 'error', text: 'リンクが無効か期限切れです。もう一度パスワードリセットを依頼してください。' })
@@ -28,7 +27,6 @@ export default function UpdatePasswordPage() {
         }
       })
     } else {
-      // 既存セッションがあれば（ログイン済みでパスワード変更する場合）
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) setReady(true)
         else setMessage({ type: 'error', text: 'リンクが無効です。もう一度パスワードリセットを依頼してください。' })
@@ -81,9 +79,7 @@ export default function UpdatePasswordPage() {
         {ready && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                新しいパスワード
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">新しいパスワード</label>
               <input
                 type="password"
                 value={password}
@@ -95,9 +91,7 @@ export default function UpdatePasswordPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                パスワード（確認）
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">パスワード（確認）</label>
               <input
                 type="password"
                 value={confirm}
@@ -114,5 +108,13 @@ export default function UpdatePasswordPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function UpdatePasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-400">読み込み中...</p></div>}>
+      <UpdatePasswordForm />
+    </Suspense>
   )
 }
