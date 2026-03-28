@@ -47,7 +47,7 @@ export default function LoginPage() {
     })
 
     if (error) {
-      setResetMessage({ type: 'error', text: 'メールの送信に失敗しました。メールアドレスを確認してください。' })
+      setResetMessage({ type: 'error', text: `メールの送信に失敗しました: ${error.message}` })
     } else {
       setResetMessage({ type: 'success', text: 'パスワードリセット用のメールを送信しました。メールをご確認ください。' })
     }
