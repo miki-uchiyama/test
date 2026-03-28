@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 export default function UpdatePasswordPage() {
   const supabase = createClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [saving, setSaving] = useState(false)
@@ -14,19 +15,25 @@ export default function UpdatePasswordPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
-    // パスワードリセットのトークンをSupabaseが自動処理するのを待つ
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
-        setReady(true)
-      }
-    })
+    const tokenHash = searchParams.get('token_hash')
+    const type = searchParams.get('type')
 
-    // 既存セッションがある場合も対応
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true)
-    })
-
-    return () => subscription.unsubscribe()
+    if (tokenHash && type === 'recovery') {
+      // URLのトークンを使ってセッションを確立
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' }).then(({ error }) => {
+        if (error) {
+          setMessage({ type: 'error', text: 'リンクが無効か期限切れです。もう一度パスワードリセットを依頼してください。' })
+        } else {
+          setReady(true)
+        }
+      })
+    } else {
+      // 既存セッションがあれば（ログイン済みでパスワード変更する場合）
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) setReady(true)
+        else setMessage({ type: 'error', text: 'リンクが無効です。もう一度パスワードリセットを依頼してください。' })
+      })
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,9 +74,11 @@ export default function UpdatePasswordPage() {
           </div>
         )}
 
-        {!ready ? (
-          <p className="text-center text-gray-400 py-4">認証情報を確認中...</p>
-        ) : (
+        {!ready && !message && (
+          <p className="text-center text-gray-400 py-4">確認中...</p>
+        )}
+
+        {ready && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
