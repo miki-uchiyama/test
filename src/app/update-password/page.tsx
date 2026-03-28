@@ -1,13 +1,12 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 function UpdatePasswordForm() {
   const supabase = createClient()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [saving, setSaving] = useState(false)
@@ -15,23 +14,22 @@ function UpdatePasswordForm() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
-    const tokenHash = searchParams.get('token_hash')
-    const type = searchParams.get('type')
+    // Supabase が URL のハッシュ（#access_token=...&type=recovery）を自動処理するのを待つ
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setReady(true)
+      }
+      if (event === 'SIGNED_IN' && session) {
+        setReady(true)
+      }
+    })
 
-    if (tokenHash && type === 'recovery') {
-      supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' }).then(({ error }) => {
-        if (error) {
-          setMessage({ type: 'error', text: 'リンクが無効か期限切れです。もう一度パスワードリセットを依頼してください。' })
-        } else {
-          setReady(true)
-        }
-      })
-    } else {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) setReady(true)
-        else setMessage({ type: 'error', text: 'リンクが無効です。もう一度パスワードリセットを依頼してください。' })
-      })
-    }
+    // すでにセッションがある場合
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,7 +111,11 @@ function UpdatePasswordForm() {
 
 export default function UpdatePasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-400">読み込み中...</p></div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-400">読み込み中...</p>
+      </div>
+    }>
       <UpdatePasswordForm />
     </Suspense>
   )
