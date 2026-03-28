@@ -64,7 +64,7 @@ export default function ResidentsPage() {
       .select('id, name, office_id, display_order, is_active, offices(id, name)')
       .order('display_order', { ascending: true })
       .order('name',          { ascending: true })
-    setResidents((data as ResidentRow[]) ?? [])
+    setResidents((data as unknown as ResidentRow[]) ?? [])
     setLoading(false)
   }
 

@@ -94,7 +94,7 @@ export default function RecordsPage() {
       (existingRecords ?? []).map((r) => [r.resident_id, r])
     )
 
-    const residentList = (residents as ResidentRow[]) ?? []
+    const residentList = (residents as unknown as ResidentRow[]) ?? []
 
     // 事業所一覧（利用者の所属を元に重複排除で生成）
     const seen = new Set<string>()

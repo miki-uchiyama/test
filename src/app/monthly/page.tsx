@@ -64,8 +64,8 @@ export default function MonthlyPage() {
         .order('record_date', { ascending: true }),
     ])
 
-    setResidents((resData as ResidentRow[]) ?? [])
-    setRecords((recData as MealRecord[]) ?? [])
+    setResidents((resData as unknown as ResidentRow[]) ?? [])
+    setRecords((recData as unknown as MealRecord[]) ?? [])
     setLoading(false)
   }
 

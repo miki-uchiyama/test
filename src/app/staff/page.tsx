@@ -44,7 +44,7 @@ export default function StaffPage() {
       .select('id, name, office_id, display_order, is_active, offices(name)')
       .order('display_order', { ascending: true })
       .order('name',          { ascending: true })
-    setStaffList((data as StaffMember[]) ?? [])
+    setStaffList((data as unknown as StaffMember[]) ?? [])
     setLoading(false)
   }
 
