@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  if (!user && pathname !== '/login' && pathname !== '/update-password') {
+  if (!user && pathname !== '/login' && pathname !== '/update-password' && pathname !== '/auth/confirm') {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
