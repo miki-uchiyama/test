@@ -41,10 +41,13 @@ export default function LoginPage() {
     setResetMessage(null)
 
     const redirectTo = `${window.location.origin}/auth/confirm`
+    console.log('[reset] redirectTo:', redirectTo)
+    console.log('[reset] supabaseUrl:', process.env.NEXT_PUBLIC_SUPABASE_URL)
 
     const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
       redirectTo,
     })
+    console.log('[reset] error:', error)
 
     if (error) {
       setResetMessage({ type: 'error', text: `メールの送信に失敗しました: ${error.message}` })
