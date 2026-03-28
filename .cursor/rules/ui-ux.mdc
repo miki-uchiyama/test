@@ -1,0 +1,41 @@
+---
+description: UI/UX規約（iPad・高齢者・支援員対応）
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# UI/UX 規約
+
+## 基本方針
+- **高齢者・支援員でも使いやすい**シンプルな操作に徹する
+- 機能を詰め込まない。1画面1目的を守る
+- UIテキストはすべて**日本語**で記述する
+
+## タッチ操作（iPad / モバイル優先）
+- ボタン・チェックボックスのタップターゲットは最低 **44px × 44px**
+- `input[type="checkbox"]` には `w-6 h-6` 以上を指定する
+- テーブルは必ず `overflow-x-auto` で横スクロール可能にする
+
+```tsx
+// ✅ GOOD
+<input type="checkbox" className="w-6 h-6 rounded accent-blue-600 cursor-pointer" />
+<div className="overflow-x-auto"><table>...</table></div>
+
+// ❌ BAD
+<input type="checkbox" />  // サイズ未指定
+```
+
+## フォーム
+- 送信ボタンは画面下部または目立つ位置に配置する
+- 保存中は `disabled` + テキスト変更（例：「保存中...」）で状態を示す
+- エラー・成功はインラインメッセージで即時フィードバックする（3秒後に消す）
+
+## テーブル表示
+- 行の `hover` ハイライトを付ける（`hover:bg-blue-50`）
+- 未記録・無効データは色やラベルで視覚的に区別する
+- 日付ナビには「前日◁ / 今日 / 翌日▷」ボタンを設ける
+
+## 禁止事項
+- モーダルの多用（確認は `window.confirm` か inline で対応）
+- 専門用語・英語ラベルの使用
+- 小さいフォントサイズ（`text-xs` は補助説明のみ。本文は `text-sm` 以上）

@@ -1,0 +1,48 @@
+---
+description: 食事提供記録システム コーディング規約
+alwaysApply: true
+---
+
+# コーディング規約
+
+## 基本方針
+- すべて **TypeScript** で実装する（`any` 型は使用禁止）
+- 型定義は `src/types/index.ts` に集約する
+- 不要な抽象化を避ける。シンプルで読みやすいコードを優先する
+- **1回の変更は小さく**、既存の動作を壊さないようにする
+- コンポーネント名・変数名は日本語でも英語でも**意味が伝わる名前**にする
+
+```tsx
+// ✅ GOOD
+const [isSaving, setIsSaving] = useState(false)
+function MealRecordTable({ records }: Props) { ... }
+
+// ❌ BAD
+const [f, setF] = useState(false)
+function Table({ d }: Props) { ... }
+```
+
+## ファイル構成
+- ページ: `src/app/[route]/page.tsx`
+- コンポーネント: `src/components/`
+- ユーティリティ: `src/lib/`
+- 型定義: `src/types/index.ts`
+
+## Supabase
+- クライアント: `src/lib/supabase.ts` の `createClient()`
+- サーバー: `src/lib/supabase-server.ts` の `createClient()`
+- RLS を必ず有効にし、認証済みユーザーのみアクセス可能にする
+
+## DB設計（監査対応）
+- 全テーブルに `created_at`, `updated_at`, `created_by` を持たせる
+- `updated_at` は `update_updated_at()` トリガーで自動更新する
+- 論理削除には `is_active` フラグを使う（物理削除しない）
+
+## CSV出力
+- 新規テーブル追加時は必ずCSV出力を考慮する
+- 文字コードはUTF-8 BOM付き（Excelで開けるよう）
+- `src/lib/csv.ts` のパターンに従い実装する
+
+## 将来拡張
+- `residents` テーブルを共通マスタとして使う
+- 服薬記録・送迎記録も同じRLSポリシーのパターンで追加する
