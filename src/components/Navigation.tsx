@@ -6,9 +6,10 @@ import { createClient } from '@/lib/supabase'
 import { useState } from 'react'
 
 const navItems = [
-  { href: '/records', label: '食事記録入力' },
-  { href: '/monthly', label: '月別一覧' },
+  { href: '/records',   label: '食事記録入力' },
+  { href: '/monthly',   label: '月別一覧' },
   { href: '/residents', label: '利用者管理' },
+  { href: '/staff',     label: '職員管理' },
 ]
 
 export default function Navigation({ userName }: { userName: string }) {
